@@ -19,6 +19,13 @@ gm_mean = function(x, na.rm=FALSE){
 }
 
 
+# Detection rates for each metal
+colSums(is.na(df1[ , c("Al_mcg_perL", "As_mcg_perL", "Cd_mcg_perL", "Cr_mcg_perL",
+         "Cu_mcg_perL", "Mn_mcg_perL", "Pb_mcg_perL", 
+         "Se_mcg_perL", "Hg_mcg_perL")]))
+
+
+
 
 #### Table1 - participant characteristics ####
 
@@ -56,13 +63,14 @@ data_quantiles <- lapply(1:length(metvars), function(j){
 })
 data_quantiles <- bind_rows(data_quantiles)
 
-# Calculate arithmetic and geometric means for each metal for each variable subcategory
+# Calculate arithmetic mean, sd,  and geometric means for each metal for each variable subcategory
 data_means <- lapply(1:length(metvars), function(j){
     lapply(1:length(catvars_tab1 ), function(i){
         df1 %>% 
             group_by(!!sym(catvars_tab1 [i])) %>%  
             summarise(n = n(),
                   armean = mean(!!sym(metvars [j]), na.rm=FALSE),
+                  sd = sd(!!sym(metvars [j]), na.rm=FALSE),
                   geomean = gm_mean(!!sym(metvars [j]), na.rm=FALSE)) %>% 
             rename(strata=1) %>% 
             mutate(var = !!(catvars_tab1 [i]),
@@ -86,6 +94,7 @@ alldata_means <- lapply(1:length(metvars), function(j){
     df1 %>% 
         summarise(n = n(),
               armean = mean(!!sym(metvars [j]), na.rm=FALSE),
+              sd = sd(!!sym(metvars [j]), na.rm=FALSE),
               geomean = gm_mean(!!sym(metvars [j]), na.rm=FALSE)) %>% 
         mutate(outvar = !!(metvars[j]))
 })
@@ -126,6 +135,7 @@ creatbysex_means <- df1 %>%
   group_by(sex) %>%  
   summarise(n = n(),
             armean = mean(creatinine_gperL, na.rm=FALSE),
+            sd = sd(creatinine_gperL, na.rm=FALSE),
             geomean = gm_mean(creatinine_gperL, na.rm=FALSE)) %>% 
   rename(strata=1) %>% 
   mutate(var = "sex",
